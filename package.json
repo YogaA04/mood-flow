@@ -1,0 +1,41 @@
+{
+  "name": "mood-flow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.9.0",
+    "add": "^2.0.6",
+    "axios": "^1.10.0",
+    "bcrypt": "^6.0.0",
+    "clsx": "^2.1.1",
+    "cookie": "^1.0.2",
+    "date-fns": "^4.1.0",
+    "fs": "0.0.1-security",
+    "jose": "^6.0.11",
+    "jsonwebtoken": "^9.0.2",
+    "next": "15.3.3",
+    "prop-types": "^15.8.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-icons": "^5.5.0",
+    "zod": "^3.25.67"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "db": "^6.0.3",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.3",
+    "prisma": "^6.9.0",
+    "push": "^0.1.1",
+    "tailwindcss": "^4"
+  }
+}
