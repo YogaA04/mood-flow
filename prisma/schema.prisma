@@ -15,45 +15,49 @@ datasource db {
 }
 
 model User {
-  id         String      @id @default(uuid())
-  email      String      @unique
-  name       String?
-  password   String
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-  routines  Routine[]
-  moodBoxes MoodBox[]
-  weeklyFocus WeeklyFocus[]
+  id           String        @id @default(uuid())
+  email        String        @unique
+  name         String?
+  password     String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  routines     Routine[]
+  moodBoxes    MoodBox[]
+  weeklyFocus  WeeklyFocus[]
 }
 
 model Routine {
-  id          String   @id @default(uuid())
-  title       String
-  description String?
-  category    String
-  mood        String
-  timeBlock   String
-  done        Boolean  @default(false)
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String        @id @default(uuid())
+  title         String
+  description   String?
+  category      String
+  timeBlock     String
+  done          Boolean       @default(false)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  moodBoxId     String       
+  moodBox       MoodBox      @relation(fields: [moodBoxId], references: [id])
+  weeklyFocusId String?
+  weeklyFocus   WeeklyFocus?  @relation(fields: [weeklyFocusId], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model MoodBox {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   mood      String
-  activity  String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  routines  Routine[]  // Relasi ke Routine
+  createdAt DateTime   @default(now())
 }
 
 model WeeklyFocus {
-  id        String   @id @default(uuid())
+  id        String     @id @default(uuid())
   day       String
   focus     String
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  routines  Routine[]  // Relasi ke Routine
+  createdAt DateTime   @default(now())
 }

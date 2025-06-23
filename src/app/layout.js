@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "Moot-Flow",
-  description: "A MOOT-FLOW application built with Next.js",
+  description: "Mood Flow adalah aplikasi web yang membantu pengguna memantau mood harian, mengelola rutinitas, dan fokus mingguan secara personal.",
   icons: {
     icon: "/mood-flow.png",
   },

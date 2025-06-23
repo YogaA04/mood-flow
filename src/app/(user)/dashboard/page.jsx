@@ -27,12 +27,12 @@ export default async function DashboardPage() {
                         <span className="text-xs text-gray-500 mt-1 text-center">Kelola rutinitas harianmu</span>
                     </a>
                     <a
-                        href="/dashboard/aktivitas"
+                        href="/dashboard/weeklyfocus"
                         className="flex-1 bg-purple-100 hover:bg-purple-200 border border-purple-300 rounded-lg p-6 flex flex-col items-center transition shadow group"
                     >
                         <span className="text-2xl mb-2 group-hover:text-purple-700 transition">🏃‍♂️</span>
-                        <span className="font-semibold text-purple-700">Aktivitas</span>
-                        <span className="text-xs text-gray-500 mt-1 text-center">Catat aktivitas produktifmu</span>
+                        <span className="font-semibold text-purple-700">Fokus minggu ini</span>
+                        <span className="text-xs text-gray-500 mt-1 text-center">Dahulukan yang terpenting minggu ini</span>
                     </a>
                     <a
                         href="/dashboard/moodcheck"
