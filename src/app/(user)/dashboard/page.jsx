@@ -1,50 +1,66 @@
-
 import ButtonPrimary from "@/components/utilities/button/buttonPrimary";
 import { getUser } from "@/libs/dal";
 import Link from "next/link";
-
+import { FaUserCircle } from "react-icons/fa";
 
 export default async function DashboardPage() {
-
     const user = await getUser();
 
+    const menus = [
+        {
+            href: "/dashboard/rutinitas",
+            icon: "🗓️",
+            title: "Rutinitas",
+            desc: "Kelola rutinitas harianmu",
+        },
+        {
+            href: "/dashboard/weeklyfocus",
+            icon: "🏃‍♂️",
+            title: "Fokus minggu ini",
+            desc: "Dahulukan yang terpenting minggu ini",
+        },
+        {
+            href: "/dashboard/moodcheck",
+            icon: "😊",
+            title: "MoodCheck",
+            desc: "Cek dan catat mood harianmu",
+        },
+    ];
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 flex flex-col items-center py-10">
-            <div className="bg-white p-8 rounded-xl shadow-lg w-full max-w-2xl space-y-6">
-                <h1 className="text-3xl font-bold text-center text-purple-700 mb-2">
+        <div className="min-h-screen bg-gradient-to-br from-indigo-200 via-purple-200 to-pink-100 flex flex-col items-center py-12">
+            <div className="bg-white/80 backdrop-blur-md p-10 rounded-3xl shadow-2xl w-full max-w-3xl space-y-8 border border-purple-100">
+                <h1 className="text-4xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-purple-700 to-pink-500 drop-shadow mb-2">
                     Selamat datang, {user.name}!
                 </h1>
-                <p className="text-center text-gray-600 mb-6">
+                <p className="text-center text-gray-600 mb-8 text-lg">
                     Ini adalah dashboard kamu. Silakan pilih menu di bawah untuk mulai aktivitas.
                 </p>
-                <div className="flex flex-col md:flex-row gap-4 justify-center">
-                    <a
-                        href="/dashboard/rutinitas"
-                        className="flex-1 bg-purple-100 hover:bg-purple-200 border border-purple-300 rounded-lg p-6 flex flex-col items-center transition shadow group"
-                    >
-                        <span className="text-2xl mb-2 group-hover:text-purple-700 transition">🗓️</span>
-                        <span className="font-semibold text-purple-700">Rutinitas</span>
-                        <span className="text-xs text-gray-500 mt-1 text-center">Kelola rutinitas harianmu</span>
-                    </a>
-                    <a
-                        href="/dashboard/weeklyfocus"
-                        className="flex-1 bg-purple-100 hover:bg-purple-200 border border-purple-300 rounded-lg p-6 flex flex-col items-center transition shadow group"
-                    >
-                        <span className="text-2xl mb-2 group-hover:text-purple-700 transition">🏃‍♂️</span>
-                        <span className="font-semibold text-purple-700">Fokus minggu ini</span>
-                        <span className="text-xs text-gray-500 mt-1 text-center">Dahulukan yang terpenting minggu ini</span>
-                    </a>
-                    <a
-                        href="/dashboard/moodcheck"
-                        className="flex-1 bg-purple-100 hover:bg-purple-200 border border-purple-300 rounded-lg p-6 flex flex-col items-center transition shadow group"
-                    >
-                        <span className="text-2xl mb-2 group-hover:text-purple-700 transition">😊</span>
-                        <span className="font-semibold text-purple-700">MoodCheck</span>
-                        <span className="text-xs text-gray-500 mt-1 text-center">Cek dan catat mood harianmu</span>
-                    </a>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {menus.map((menu) => (
+                        <Link
+                            key={menu.href}
+                            href={menu.href}
+                            className="group flex flex-col items-center bg-gradient-to-br from-purple-100 to-pink-100 border border-purple-200 rounded-2xl p-7 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 hover:border-pink-400 cursor-pointer"
+                        >
+                            <span className="text-4xl mb-3 group-hover:scale-125 group-hover:-translate-y-1 transition-transform duration-300">
+                                {menu.icon}
+                            </span>
+                            <span className="font-bold text-lg text-purple-700 group-hover:text-pink-600 transition-colors">
+                                {menu.title}
+                            </span>
+                            <span className="text-xs text-gray-500 mt-2 text-center">
+                                {menu.desc}
+                            </span>
+                        </Link>
+                    ))}
                 </div>
-
-                <ButtonPrimary as={Link} href="/profile" className="mt-6 w-full ">
+                <ButtonPrimary
+                    as={Link}
+                    href="/profile"
+                    className="mt-8 w-full flex items-center justify-center gap-2 text-lg py-3 rounded-xl shadow-md hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-400 transition-all"
+                >
+                    <FaUserCircle className="text-2xl" />
                     Lihat Profil
                 </ButtonPrimary>
             </div>
