@@ -27,8 +27,8 @@ export default function RoutinePage() {
     };
 
     return (
-        <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-200 via-purple-100 to-purple-300 py-10">
-            <div className="w-full max-w-2xl bg-white/80 backdrop-blur-md rounded-2xl shadow-2xl p-8 mb-8 border border-purple-100">
+        <>
+            <div className="w-full p-6">
 
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
@@ -124,6 +124,6 @@ export default function RoutinePage() {
                     animation: fadeIn 0.3s ease;
                 }
             `}</style>
-        </div>
+        </>
     );
 }
