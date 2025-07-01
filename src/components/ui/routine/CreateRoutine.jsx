@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import FormPrimary from "@/components/utilities/form/FormPrimary";
+import EmojiPicker from 'emoji-picker-react';
 
 const initialState = {
   title: "",
@@ -18,12 +19,26 @@ export default function CreateRoutine({ onSuccess }) {
   const [pending, setPending] = useState(false);
   const [moodBoxes, setMoodBoxes] = useState([]);
   const [useCustomMood, setUseCustomMood] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   // Ambil mood yang sudah ada dari API
   useEffect(() => {
-    fetch("/api/mood_box")
-      .then((res) => res.json())
-      .then((data) => setMoodBoxes(data.moodBoxes || []));
+    fetch("/api/graphql", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        query: `
+          query {
+            moodBoxes {
+              id
+              mood
+            }
+          }
+        `
+      })
+    })
+      .then(res => res.json())
+      .then(data => setMoodBoxes(data.data.moodBoxes || []));
   }, []);
 
   const handleChange = (e) => {
@@ -45,20 +60,37 @@ export default function CreateRoutine({ onSuccess }) {
     setError(null);
     setPending(true);
 
-    // Gunakan mood baru jika user input manual
     const moodToSend = useCustomMood ? form.moodInput : form.mood;
 
-    const res = await fetch("/api/rutinitas", {
+    const res = await fetch("/api/graphql", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, mood: moodToSend }),
+      body: JSON.stringify({
+        query: `
+          mutation CreateRoutine($title: String!, $category: String!, $mood: String!,) {
+            createRoutine(
+              title: $title
+              category: $category
+              mood: $mood
+            ) {
+              id
+              title
+            }
+          }
+        `,
+        variables: {
+          title: form.title,
+          category: form.category,
+          mood: moodToSend,
+        }
+      })
     });
 
     const data = await res.json();
     setPending(false);
 
-    if (!res.ok) {
-      setError(data.error || "Gagal membuat rutinitas.");
+    if (data.errors) {
+      setError(data.errors[0].message || "Gagal membuat rutinitas.");
     } else {
       setForm(initialState);
       setUseCustomMood(false);
@@ -80,17 +112,6 @@ export default function CreateRoutine({ onSuccess }) {
           onChange={handleChange}
           className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
           required
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-          rows={2}
         />
       </div>
 
@@ -124,29 +145,37 @@ export default function CreateRoutine({ onSuccess }) {
           <option value="__custom__">+ Mood baru...</option>
         </select>
         {useCustomMood && (
-          <input
-            type="text"
-            name="moodInput"
-            value={form.moodInput}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-3 py-2 mt-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            placeholder="Masukkan mood baru"
-            required
-          />
+          <div className="relative flex items-center mt-2">
+            <input
+              type="text"
+              name="moodInput"
+              value={form.moodInput}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              placeholder="Masukkan mood baru"
+              required
+            />
+            <button
+              type="button"
+              className="ml-2 px-2 py-1 rounded-lg bg-purple-100 hover:bg-purple-200 text-xl"
+              onClick={() => setShowEmojiPicker((v) => !v)}
+              tabIndex={-1}
+            >
+              😊
+            </button>
+            {showEmojiPicker && (
+              <div className="fixed z-50">
+                <EmojiPicker
+                  onEmojiClick={(emojiObject) => {
+                    setForm({ ...form, moodInput: form.moodInput + emojiObject.emoji });
+                    setShowEmojiPicker(false);
+                  }}
+                  theme="light"
+                />
+              </div>
+            )}
+          </div>
         )}
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Waktu (Time Block)</label>
-        <input
-          type="text"
-          name="timeBlock"
-          value={form.timeBlock}
-          onChange={handleChange}
-          className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-          placeholder="Contoh: Pagi, Siang, Malam"
-          required
-        />
       </div>
 
       <button

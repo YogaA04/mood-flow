@@ -5,7 +5,6 @@ import { cookies } from "next/headers";
 // speify protection and public routes
 const protectedRoutes = [
     '/dashboard',
-    '/profile',
 ];
 const publicRoutes = [
     '/',

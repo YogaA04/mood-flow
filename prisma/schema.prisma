@@ -15,49 +15,73 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(uuid())
-  email        String        @unique
-  name         String?
-  password     String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  routines     Routine[]
-  moodBoxes    MoodBox[]
-  weeklyFocus  WeeklyFocus[]
+  id            String         @id @default(uuid())
+  email         String         @unique
+  name          String?
+  password      String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  routines      Routine[]
+  moodBoxes     MoodBox[]
+  weeklyFocus   WeeklyFocus[]
+  myDayRoutines MyDayRoutine[]
 }
 
 model Routine {
-  id            String        @id @default(uuid())
+  id            String         @id @default(uuid())
   title         String
-  description   String?
   category      String
-  timeBlock     String
-  done          Boolean       @default(false)
   userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  moodBoxId     String       
-  moodBox       MoodBox      @relation(fields: [moodBoxId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
+  moodBoxId     String
+  moodBox       MoodBox        @relation(fields: [moodBoxId], references: [id])
   weeklyFocusId String?
-  weeklyFocus   WeeklyFocus?  @relation(fields: [weeklyFocusId], references: [id])
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  weeklyFocus   WeeklyFocus?   @relation(fields: [weeklyFocusId], references: [id])
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  myDayRoutines MyDayRoutine[]
+}
+
+model MyDayRoutine {
+  id        String         @id @default(uuid())
+  routineId String
+  routine   Routine        @relation(fields: [routineId], references: [id])
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  date      DateTime
+  description   String?
+  isChecked Boolean        @default(false)
+  checkedAt DateTime?
+  createdAt DateTime       @default(now())
+  routineTimer RoutineTimer?
+
+  @@index([userId, date]) // Index untuk query harian user
+}
+
+model RoutineTimer {
+  id             String       @id @default(uuid())
+  myDayRoutineId String       @unique
+  myDayRoutine   MyDayRoutine @relation(fields: [myDayRoutineId], references: [id])
+  duration       Int // dalam detik/menit
+  startedAt      DateTime
+  endedAt        DateTime?
 }
 
 model MoodBox {
-  id        String     @id @default(uuid())
+  id        String    @id @default(uuid())
   mood      String
   userId    String
-  user      User       @relation(fields: [userId], references: [id])
-  routines  Routine[]  // Relasi ke Routine
-  createdAt DateTime   @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  routines  Routine[]
+  createdAt DateTime  @default(now())
 }
 
 model WeeklyFocus {
-  id        String     @id @default(uuid())
+  id        String    @id @default(uuid())
   day       String
   focus     String
   userId    String
-  user      User       @relation(fields: [userId], references: [id])
-  routines  Routine[]  // Relasi ke Routine
-  createdAt DateTime   @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  routines  Routine[]
+  createdAt DateTime  @default(now())
 }

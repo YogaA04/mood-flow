@@ -1,25 +1,12 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CreateRoutine from '@/components/ui/routine/CreateRoutine';
 import { FiArrowLeft, FiPlus } from "react-icons/fi";
+import CardRoutine from "@/components/ui/routine/CardRoutine";
 
 export default function RoutinePage() {
-    const [routines, setRoutines] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
-
-    const fetchRoutines = async () => {
-        setLoading(true);
-        const res = await fetch("/api/rutinitas");
-        const data = await res.json();
-        setRoutines(data.routines || []);
-        setLoading(false);
-    };
-
-    useEffect(() => {
-        fetchRoutines();
-    }, []);
 
     const handleSuccess = () => {
         setShowModal(false);
@@ -57,45 +44,9 @@ export default function RoutinePage() {
                     </button>
                 </div>
 
-                {/* Loading Animation */}
-                {loading ? (
-                    <div className="flex flex-col items-center py-12">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500 mb-4"></div>
-                        <div className="text-center text-gray-500">Memuat rutinitas...</div>
-                    </div>
-                ) : routines.length === 0 ? (
-                    <div className="text-center text-gray-400 py-12 italic">Belum ada rutinitas.</div>
-                ) : (
-                    <ul>
-                        {routines.map((routine) => (
-                            <li
-                                key={routine.id}
-                                className="group py-5 flex flex-col md:flex-row md:items-center md:justify-between bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-md mb-5 px-5 md:px-8 border border-purple-100 hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
-                            >
-                                <div>
-                                    <div className="font-bold text-lg text-purple-800 group-hover:text-blue-700 transition">{routine.title}</div>
-                                    <div className="text-sm text-gray-600 mb-1">{routine.description}</div>
-                                    <div className="text-xs text-gray-400 mt-1">
-                                        <span className="mr-2">Kategori: <span className="font-semibold text-purple-500">{routine.category}</span></span>
-                                        <span className="mr-2">Mood: <span className="font-semibold text-blue-500">{routine.mood}</span></span>
-                                        <span>Waktu: <span className="font-semibold text-pink-500">{routine.timeBlock}</span></span>
-                                    </div>
-                                </div>
-                                <div className="mt-3 md:mt-0 flex items-center gap-2">
-                                    {routine.done ? (
-                                        <span className="px-4 py-1 bg-gradient-to-r from-green-400 to-green-600 text-white rounded-full text-xs font-bold shadow">
-                                            Selesai
-                                        </span>
-                                    ) : (
-                                        <span className="px-4 py-1 bg-gradient-to-r from-yellow-300 to-yellow-500 text-yellow-900 rounded-full text-xs font-bold shadow">
-                                            Belum Selesai
-                                        </span>
-                                    )}
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
-                )}
+                {/* Routine List */}
+                <CardRoutine /> 
+
             </div>
 
             {/* Modal CreateRoutine */}
@@ -113,17 +64,6 @@ export default function RoutinePage() {
                     </div>
                 </div>
             )}
-
-            {/* Animasi modal */}
-            <style jsx global>{`
-                @keyframes fadeIn {
-                    from { opacity: 0; transform: translateY(40px);}
-                    to { opacity: 1; transform: translateY(0);}
-                }
-                .animate-fadeIn {
-                    animation: fadeIn 0.3s ease;
-                }
-            `}</style>
         </>
     );
 }

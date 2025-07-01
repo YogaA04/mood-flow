@@ -37,7 +37,7 @@ export const signup = async (state, formData) => {
         await createSession(user.id);
 
         return {
-            message: 'Your account has been created successfully!',
+            message: 'Your account has been created successfully! restart the app to see the changes.',
             success: true,
         }
     } catch (error) {
@@ -87,7 +87,7 @@ export const login = async (state, formData) => {
 
     // Create a session for the user (not implemented here)
     await createSession(user.id);
-    redirect("/profile");
+    redirect("/dashboard");
 
     return {
         message: 'Login successful!',

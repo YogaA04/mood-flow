@@ -1,22 +1,31 @@
 "use client"
 
 import Link from "next/link"
-import { FaUserCircle, FaSignOutAlt, FaHome, FaListUl, FaStar, FaSun, FaCheckCircle, FaCalendarAlt   } from "react-icons/fa"
+import { useEffect, useState } from "react";
+import { FaUserCircle, FaSignOutAlt, FaHome, FaListUl, FaStar, FaSun, FaCheckCircle, FaCalendarAlt } from "react-icons/fa"
 
 export default function NavDasboard({ user }) {
+    const [greeting, setGreeting] = useState("");
+    useEffect(() => {
+        const hour = new Date().getHours();
+        if (hour < 12) setGreeting("Selamat Pagi");
+        else if (hour < 15) setGreeting("Selamat Siang");
+        else if (hour < 18) setGreeting("Selamat Sore");
+        else setGreeting("Selamat Malam");
+    }, []);
     return (
         <nav className="min-h-screen bg-gradient-to-b from-purple-200 to-pink-100 flex flex-col w-60 p-6 rounded-r shadow-xl justify-between">
             {/* Top Section: User Info */}
             <div className="">
-                <div className="flex items-center gap-3 mb-8">
+                <Link href="/dashboard/profile" className="flex items-center gap-3 mb-8">
                     <div className="bg-white p-1 rounded-full shadow-md">
                         <FaUserCircle className="text-5xl text-purple-600" />
                     </div>
                     <div>
                         <h1 className="text-lg font-bold leading-tight">Hi, {user.name}</h1>
-                        <span className="text-xs">Selamat Siang</span>
+                        <span className="text-xs">{greeting}</span>
                     </div>
-                </div>
+                </Link>
                 {/* Main Navigation */}
                 <ul className="space-y-2 mb-8 border-y border-purple-300 pb-6">
                     <li>
@@ -50,7 +59,7 @@ export default function NavDasboard({ user }) {
                         </Link>
                     </li>
                 </ul>
-                
+
                 {/* Fokus Minggu Ini Section */}
                 <div className="mb-6">
                     <h2 className="text-sm font-semibold mb-2">Fokus Minggu Ini</h2>
