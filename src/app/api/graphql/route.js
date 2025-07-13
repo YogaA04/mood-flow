@@ -6,6 +6,7 @@ const typeDefs = /* GraphQL */ `
     type Query {
         routines: [Routine!]!
         moodBoxes: [MoodBox!]!
+        myDayRoutines(isChecked: Boolean): [MyDayRoutine!]!
     }
     type Mutation {
         createRoutine(
@@ -13,6 +14,14 @@ const typeDefs = /* GraphQL */ `
             category: String!
             mood: String!
         ): Routine!
+        createMyDay(
+            routineId: String!
+            date: String!
+            description: String
+        ): MyDayRoutine!
+        checkMyDayRoutine(
+            id: String!
+        ): MyDayRoutine!
     }
     type Routine {
         id: ID!
@@ -25,6 +34,17 @@ const typeDefs = /* GraphQL */ `
     type MoodBox {
         id: ID!
         mood: String!
+    }
+    type MyDayRoutine {
+        id: ID!
+        routineId: String!
+        userId: String!
+        date: String!
+        description: String
+        isChecked: Boolean!
+        checkedAt: String
+        createdAt: String!
+        routine: Routine!
     }
 `;
 
@@ -43,6 +63,18 @@ const resolvers = {
             return await prisma.moodBox.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },
+            });
+        },
+        myDayRoutines: async (_, args, context) => {
+            const { userId } = await verifySession();
+            const where = { userId };
+            if (typeof args.isChecked === 'boolean') {
+                where.isChecked = args.isChecked;
+            }
+            return await prisma.myDayRoutine.findMany({
+                where,
+                orderBy: { date: 'desc' },
+                include: { routine: { include: { moodBox: true } } },
             });
         },
     },
@@ -67,6 +99,37 @@ const resolvers = {
                 include: { moodBox: true },
             });
             return routine;
+        },
+        createMyDay: async (_, args, context) => {
+            const { userId } = await verifySession();
+            const { routineId, date, description } = args;
+            if (!routineId || !date) {
+                throw new Error('routineId dan date wajib diisi.');
+            }
+            const myDayRoutine = await prisma.myDayRoutine.create({
+                data: {
+                    routineId,
+                    userId,
+                    date: new Date(date),
+                    description,
+                },
+            });
+            return myDayRoutine;
+        },
+        checkMyDayRoutine: async (_, args, context) => {
+            const { userId } = await verifySession();
+            const { id } = args;
+            // Pastikan hanya user yang bersangkutan bisa update
+            const updated = await prisma.myDayRoutine.updateMany({
+                where: { id, userId },
+                data: {
+                    isChecked: true,
+                    checkedAt: new Date(),
+                },
+            });
+            // Ambil data terbaru
+            const myDayRoutine = await prisma.myDayRoutine.findUnique({ where: { id } });
+            return myDayRoutine;
         },
     },
     Routine: {

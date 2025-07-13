@@ -3,31 +3,37 @@
 import { useEffect, useState } from "react";
 
 
-export default function CardRoutine({ routine }) {
+export default function CardRoutine() {
     const [routines, setRoutines] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [myDay, setMyDay] = useState([]);
+    const [notif, setNotif] = useState(null);
 
     const fetchRoutines = async () => {
         setLoading(true);
-        const res = await fetch('/api/graphql', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                query: `
-                    query {
-                        routines {
-                            id
-                            title
-                            category
-                            moodBox {
-                            mood
+        try {
+            const res = await fetch('/api/graphql', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: `
+                        query {
+                            routines {
+                                id
+                                title
+                                category
+                                moodBox {
+                                    mood
+                                }
                             }
-                        }
-                    }`
-            })
-        });
-        const { data } = await res.json();
-        setRoutines(data.routines || []);
+                        }`
+                })
+            });
+            const { data } = await res.json();
+            setRoutines(data.routines || []);
+        } catch (err) {
+            setNotif('Gagal memuat rutinitas');
+        }
         setLoading(false);
     };
 
@@ -36,25 +42,47 @@ export default function CardRoutine({ routine }) {
     }, []);
 
     // Fungsi untuk menambahkan rutinitas ke MyDay
-    const addToMyDay = async (routineId) => {
+    const addToMyDay = async (routine) => {
+        const routineId = routine.id;
         try {
-            const res = await fetch('/api/myday', {
+            const res = await fetch('/api/graphql', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ routineId }),
+                body: JSON.stringify({
+                    query: `
+                        mutation($routineId: String!, $date: String!, $description: String) {
+                            createMyDay(routineId: $routineId, date: $date, description: $description) {
+                                id
+                            }
+                        }`,
+                    variables: {
+                        routineId,
+                        date: new Date().toISOString(),
+                        description: routine.title,
+                    }
+                })
             });
-            if (res.ok) {
-                alert('Rutinitas berhasil ditambahkan ke MyDay!');
-            } else {
-                alert('Gagal menambahkan ke MyDay.');
+            const { data, errors } = await res.json();
+            if (errors) {
+                setNotif('Gagal menambah ke MyDay');
+                console.log(errors)
+                return;
             }
-        } catch (error) {
-            alert('Terjadi kesalahan.');
+            setMyDay(prev => [...prev, data.createMyDay]);
+            setNotif('Berhasil ditambah ke MyDay!');
+        } catch (err) {
+            setNotif('Gagal menambah ke MyDay');
         }
+        setTimeout(() => setNotif(null), 2000);
     };
 
     return (
         <>
+            {notif && (
+                <div className="fixed top-4 right-4 bg-purple-600 text-white px-4 py-2 rounded shadow z-50">
+                    {notif}
+                </div>
+            )}
             {/* Loading Animation */}
             {loading ? (
                 <div className="flex flex-col items-center py-12">
@@ -81,7 +109,7 @@ export default function CardRoutine({ routine }) {
                             <div className="mt-3 md:mt-0 flex items-center gap-2">
                                 <button
                                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
-                                    onClick={() => addToMyDay(routine.id)}
+                                    onClick={() => addToMyDay(routine)}
                                 >
                                     + Tambah ke MyDay
                                 </button>

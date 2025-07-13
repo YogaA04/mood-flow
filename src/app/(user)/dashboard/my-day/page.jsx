@@ -1,6 +1,6 @@
 "use client";
 
-import CardRoutine from "@/components/ui/routine/CardRoutine";
+import CardMyDay from "@/components/ui/myDay/CardMyDay";
 import CreateRoutine from "@/components/ui/routine/CreateRoutine";
 import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
@@ -17,7 +17,6 @@ export default function MyDayPage() {
 
     const handleSuccess = () => {
         setShowModal(false);
-        fetchRoutines();
     };
 
     return (
@@ -38,7 +37,7 @@ export default function MyDayPage() {
             </div>
 
             {/* Routine List */}
-            <CardRoutine />
+            <CardMyDay checked={false}/>
 
             {/* Modal CreateRoutine */}
             {showModal && (

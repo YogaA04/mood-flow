@@ -10,7 +10,6 @@ export default function RoutinePage() {
 
     const handleSuccess = () => {
         setShowModal(false);
-        fetchRoutines();
     };
 
     return (
