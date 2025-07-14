@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 
-export default function CardMyDay({checked}) {
+export default function CardMyDay({ checked, date }) {
     const [myDay, setMyDay] = useState([]);
     const [loading, setLoading] = useState(true);
     const [notif, setNotif] = useState(null);
@@ -11,25 +11,30 @@ export default function CardMyDay({checked}) {
     const fetchMyDay = async () => {
         setLoading(true);
         try {
+            // Build dynamic arguments for the query
+            const args = [];
+            if (checked !== undefined) args.push(`isChecked: ${checked}`);
+            if (date) args.push(`date: "${date}"`);
+            const argsString = args.length ? `(${args.join(', ')})` : '';
+
             const res = await fetch('/api/graphql', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     query: `
                         query {
-                            myDayRoutines(isChecked: ${checked})  {
+                            myDayRoutines${argsString} {
+                                date
+                                description
                                 id
+                                isChecked
                                 routine {
-                                    id
-                                    title
                                     category
+                                    title
                                     moodBox {
                                         mood
                                     }
                                 }
-                                isChecked
-                                date
-                                description
                             }
                         }`
                 })
@@ -37,6 +42,7 @@ export default function CardMyDay({checked}) {
             const { data } = await res.json();
             setMyDay(data.myDayRoutines || []);
         } catch (err) {
+            console.log(err);
             setNotif('Gagal memuat rutinitas MyDay');
         }
         setLoading(false);
@@ -112,11 +118,10 @@ export default function CardMyDay({checked}) {
                             </div>
                             <div className="mt-3 md:mt-0 flex items-center gap-2">
                                 <button
-                                    className={`px-4 py-2 rounded-lg transition ${
-                                        routine.isChecked
+                                    className={`px-4 py-2 rounded-lg transition ${routine.isChecked
                                             ? "bg-gray-400 text-white cursor-not-allowed"
                                             : "bg-purple-600 text-white hover:bg-purple-700"
-                                    }`}
+                                        }`}
                                     disabled={routine.isChecked}
                                     onClick={() => !routine.isChecked && checkMyDayRoutine(routine.id)}
                                 >

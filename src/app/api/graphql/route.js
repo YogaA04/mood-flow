@@ -6,7 +6,7 @@ const typeDefs = /* GraphQL */ `
     type Query {
         routines: [Routine!]!
         moodBoxes: [MoodBox!]!
-        myDayRoutines(isChecked: Boolean): [MyDayRoutine!]!
+        myDayRoutines(isChecked: Boolean, date: String): [MyDayRoutine!]!
     }
     type Mutation {
         createRoutine(
@@ -71,6 +71,13 @@ const resolvers = {
             if (typeof args.isChecked === 'boolean') {
                 where.isChecked = args.isChecked;
             }
+            if (args.date) {
+                // Filter tanggal (format: YYYY-MM-DD)
+                where.date = {
+                    gte: new Date(args.date + "T00:00:00.000Z"),
+                    lt: new Date(args.date + "T23:59:59.999Z"),
+                };
+            }
             return await prisma.myDayRoutine.findMany({
                 where,
                 orderBy: { date: 'desc' },
@@ -82,7 +89,7 @@ const resolvers = {
         createRoutine: async (_, args, context) => {
             const { userId } = await verifySession();
             const { title, category, mood, } = args;
-            if (!title || !category || !mood ) {
+            if (!title || !category || !mood) {
                 throw new Error('Field wajib tidak boleh kosong.');
             }
             let moodBox = await prisma.moodBox.findFirst({ where: { userId, mood } });

@@ -9,7 +9,6 @@ export default function MyDayPage() {
 
     const [showModal, setShowModal] = useState(false);
     const [today, setToday] = useState("");
-
     useEffect(() => {
         const now = new Date().toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
         setToday(now);
@@ -37,7 +36,7 @@ export default function MyDayPage() {
             </div>
 
             {/* Routine List */}
-            <CardMyDay checked={false}/>
+            <CardMyDay checked={false} date={new Date().toISOString().split("T")[0]} />
 
             {/* Modal CreateRoutine */}
             {showModal && (

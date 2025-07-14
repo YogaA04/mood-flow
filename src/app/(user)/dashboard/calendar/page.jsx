@@ -1,29 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import 'react-calendar/dist/Calendar.css';
 
-// Contoh data rutinitas
-const routines = [
-    { date: "2025-06-10", title: "Olahraga Pagi", description: "Jogging di taman selama 30 menit" },
-    { date: "2025-06-10", title: "Meeting Tim", description: "Diskusi proyek jam 10 pagi" },
-    { date: "2025-06-11", title: "Belajar React", description: "Mempelajari hooks dan context" },
-    { date: "2025-06-12", title: "Baca Buku", description: "Membaca 1 bab buku pengembangan diri" },
-];
-
-function getRoutinesByDate(date) {
-    const dateStr = date.toISOString().split('T')[0];
-    return routines.filter(r => r.date === dateStr);
-}
-
-function hasRoutine(date) {
-    const dateStr = date.toISOString().split('T')[0];
-    return routines.some(r => r.date === dateStr);
-}
-
 export default function CalendarPage() {
     const [value, setValue] = useState(new Date());
+    const [routines, setRoutines] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchRoutines = async () => {
+            setLoading(true);
+            try {
+                const res = await fetch('/api/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        query: `
+                            query {
+                                myDayRoutines {
+                                    date
+                                    description
+                                    id
+                                    isChecked
+                                    routine {
+                                        moodBox { mood }
+                                        title
+                                        category
+                                    }
+                                }
+                            }
+                        `
+                    })
+                });
+                const { data } = await res.json();
+                setRoutines(data?.myDayRoutines || []);
+            } catch (err) {
+                setRoutines([]);
+            }
+            setLoading(false);
+        };
+        fetchRoutines();
+    }, []);
+
+    function getRoutinesByDate(date) {
+        const selectedTime = new Date(date).setHours(0, 0, 0, 0);
+        return routines.filter(r => {
+            const routineDate = new Date(Number(r.date)).setHours(0, 0, 0, 0);
+            return routineDate === selectedTime;
+        });
+    }
+
+    function hasRoutine(date) {
+        const selectedTime = new Date(date).setHours(0, 0, 0, 0);
+        return routines.some(r => {
+            const routineDate = new Date(Number(r.date)).setHours(0, 0, 0, 0);
+            return routineDate === selectedTime;
+        });
+    }
+
     const selectedRoutines = getRoutinesByDate(value);
 
     return (
@@ -41,10 +77,8 @@ export default function CalendarPage() {
                     prev2Label={null}
                     next2Label={null}
                     formatAriaLabel={({ date }) => {
-                        // Format: 29 May 2025
                         const options = { day: '2-digit', month: 'short', year: 'numeric' };
                         const localeDate = date.toLocaleDateString('en-GB', options);
-                        // en-GB returns "29 May 2025"
                         return localeDate;
                     }}
                     tileContent={({ date, view }) =>
@@ -60,12 +94,29 @@ export default function CalendarPage() {
                 <h2 className="text-xl font-semibold text-purple-700 mb-4 text-center">
                     Rutinitas pada {value.toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}
                 </h2>
-                {selectedRoutines.length > 0 ? (
+                {loading ? (
+                    <div className="text-gray-500 text-center">Memuat rutinitas...</div>
+                ) : selectedRoutines.length > 0 ? (
                     <ul className="space-y-4">
-                        {selectedRoutines.map((routine, idx) => (
-                            <li key={idx} className="bg-white border border-purple-100 rounded-lg p-4 shadow">
-                                <div className="font-bold text-purple-800">{routine.title}</div>
+                        {selectedRoutines.map((routine) => (
+                            <li key={routine.id} className="bg-white border border-purple-100 rounded-lg p-4 shadow">
+                                <div className="font-bold text-purple-800">{routine.routine.title}</div>
                                 <div className="text-gray-600">{routine.description}</div>
+                                <div className="text-xs text-gray-400 mt-1 w-full flex justify-between">
+                                    Kategori: <span className="font-semibold text-purple-500">{routine.routine.category}</span>
+                                    {" | "}
+                                    Mood: <span className="font-semibold text-blue-500">{routine.routine.moodBox.mood}</span>
+
+                                    <span
+                                        className={`text-right ${routine.isChecked
+                                            ? "text-gray-400"
+                                            : "text-red-500"
+                                            }`}
+                                    >
+                                        {routine.isChecked ? "Selesai" : "Belum Selesai"}
+                                    </span>
+                                </div>
+
                             </li>
                         ))}
                     </ul>
